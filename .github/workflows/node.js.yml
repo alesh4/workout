@@ -1,6 +1,6 @@
 # This workflow will do a clean installation of node dependencies, cache/restore them, build the source code and run tests across different versions of node
 # For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-nodejs
-
+# Seems only way to do two step process would be to build artifact upload, then download and continue the process which seems like a waste
 name: Deploy node app to Pages
 
 on:
@@ -17,6 +17,11 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    
     steps:
     - name: checkout
       uses: actions/checkout@v4
@@ -34,28 +39,14 @@ jobs:
       #with:
         #name: dist
         #path: ./dist/
-  deploy:
-    needs: build
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    steps:
-      #- name: Checkout
-      #  uses: actions/checkout@v4
-      #- #name: download build artificat
-        #uses: actions/download-artifact@v4
-        #with:
-          #name: dist
-          #path: ./dist
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          # Upload entire repository
-          path: './dist/'
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+    - name: Setup Pages
+      uses: actions/configure-pages@v5
+    - name: Upload artifact
+      uses: actions/upload-pages-artifact@v3
+      with:
+        # Upload entire repository
+        path: './dist/'
+    - name: Deploy to GitHub Pages
+      id: deployment
+      uses: actions/deploy-pages@v4
   
